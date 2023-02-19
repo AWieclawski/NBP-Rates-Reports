@@ -1,0 +1,3 @@
+tr { text-align: center; }
+th { background-color: lightgreen; padding: 3px; font-weight: bold; }
+td { background-color: lightblue;  padding: 3px; font-weight: normal; }
