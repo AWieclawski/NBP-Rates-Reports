@@ -10,12 +10,12 @@ import edu.awieclawski.models.entities.DataPackage;
 
 public interface NbpRequestService {
 
-	LocalDate getPackagesAndSaveIfDateBeforeLastExchangeRateDate(LocalDate date, int counter, List<DataPackage> opPackages,
-	String endPoint,	String currencyCode, LocalDate endDate);
+	LocalDate getPackagesAndSaveIfDateBeforeLastExchangeRateDate(LocalDate date, int counter,
+			List<DataPackage> opPackages, String endPoint, NbpType nbpType, List<String> codes, LocalDate endDate);
 
 	Pair<LocalDate, List<DataPackage>> getPairDatePackagesBeforeLastPackageRecordAndSave(LocalDate date, int counter,
-	List<DataPackage> opPackages, String endPoint, String currencyCode, LocalDate endDate);
-	
+			List<DataPackage> opPackages, String endPoint, String currencyCode, LocalDate endDate);
+
 	LocalDate getDateOfLastDataPackagesByTypeAndSave(LocalDate date, int counter, List<DataPackage> opPackages,
-	NbpType nbpType, List<String> codes, LocalDate endDate);
+			NbpType nbpType, List<String> codes, LocalDate endDate);
 }

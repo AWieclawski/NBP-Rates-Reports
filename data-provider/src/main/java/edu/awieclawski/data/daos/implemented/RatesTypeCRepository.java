@@ -19,7 +19,7 @@ public interface RatesTypeCRepository extends BaseRatesRepository<ExchangeRateTy
 	Optional<ExchangeRateTypeC> findById(Long id);
 
 	@Override
-	@Query(value = "SELECT er FROM ExchangeRateTypeB er LEFT JOIN er.currency cr "
+	@Query(value = "SELECT er FROM ExchangeRateTypeC er LEFT JOIN er.currency cr "
 	+ " WHERE cr.code IN :codes AND er.published BETWEEN :publishedStart AND :publishedEnd ")
 	List<ExchangeRateTypeC> findByDatesRangeAndSymbolList(
 	@Param("publishedStart") LocalDate publishedStart,
@@ -27,7 +27,7 @@ public interface RatesTypeCRepository extends BaseRatesRepository<ExchangeRateTy
 	@Param("codes") List<String> codes);
 
 	@Override
-	@Query(value = "SELECT er FROM ExchangeRateTypeB er "
+	@Query(value = "SELECT er FROM ExchangeRateTypeC er "
 	+ " WHERE er.published BETWEEN :publishedStart AND :publishedEnd ")
 	List<ExchangeRateTypeC> findByDatesRange(
 	@Param("publishedStart") LocalDate publishedStart,

@@ -6,7 +6,7 @@ import javax.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Component;
 
-import edu.awieclawski.commons.beans.NbpEndpointBeans;
+import edu.awieclawski.commons.beans.NbpEndPointElements;
 import edu.awieclawski.models.entities.ExchangeRate;
 import edu.awieclawski.models.entities.ExchangeRateTypeA;
 import edu.awieclawski.models.entities.ExchangeRateTypeB;
@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EndPointToRateTypeMapper {
 
-	private final NbpEndpointBeans endPoints;
+	private final NbpEndPointElements endPoints;
 
 	@SuppressWarnings("unchecked")
 	public <T extends ExchangeRate> Class<T> map(String endPoint) {

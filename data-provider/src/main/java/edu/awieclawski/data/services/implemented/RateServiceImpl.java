@@ -66,7 +66,7 @@ class RateServiceImpl implements RateService {
 		}
 
 		if (isRateDuplicated(rateDto)) {
-			log.warn("{} already exists!", rateDto.getInfo());
+			log.warn("{} not to be saved - the same entity exists!", rateDto.getInfo());
 			throw new EntityExistsException(EXIST_ERR_MSG);
 		}
 
@@ -161,7 +161,7 @@ class RateServiceImpl implements RateService {
 	@Transactional(readOnly = true)
 	public ExchangeRate findById(Long id) {
 		return exchangeRateRepository.findById(id)
-		.orElseThrow(() -> new DataNotFoundException(NOT_FOUND_ERR_MSG, null));
+				.orElseThrow(() -> new DataNotFoundException(NOT_FOUND_ERR_MSG, null));
 	}
 
 	@Override
@@ -173,7 +173,7 @@ class RateServiceImpl implements RateService {
 			return exchangeRates.get(0);
 		} else if (exchangeRates.size() > 1) {
 			log.warn("Found {} too many Exchange Rates by code {} and published {}", exchangeRates.size(), code,
-			published);
+					published);
 			throw new IllegalResultsException("Too many entities found!", null);
 		} else {
 			log.warn("Any {} by code {} and validFrom {}", NOT_FOUND_ERR_MSG, code, published);
@@ -221,6 +221,7 @@ class RateServiceImpl implements RateService {
 
 	@Transactional(readOnly = true)
 	public boolean findIfExistsByCodeAndDateAndType(String code, LocalDate published, NbpType nbpType) {
+		Boolean ifExists = false;
 
 		if (Objects.isNull(nbpType)) {
 			nbpType = NbpType.A;
@@ -228,21 +229,25 @@ class RateServiceImpl implements RateService {
 		}
 
 		if (NbpType.A.equals(nbpType)) {
-			return ratesTypeARepository.findIfExistsByCodeDate(code, published);
+			ifExists = ratesTypeARepository.findIfExistsByCodeDate(code, published);
 		} else if (NbpType.B.equals(nbpType)) {
-			return ratesTypeBRepository.findIfExistsByCodeDate(code, published);
+			ifExists = ratesTypeBRepository.findIfExistsByCodeDate(code, published);
 		} else if (NbpType.C.equals(nbpType)) {
-			return ratesTypeCRepository.findIfExistsByCodeDate(code, published);
+			ifExists = ratesTypeCRepository.findIfExistsByCodeDate(code, published);
 		} else {
 			throw new RateNotFoundException("Ralated NBP type table not supported: " + nbpType);
 		}
+
+		log.info("Found {} rates. Params {}, {}, {}", ifExists, code, published, nbpType);
+		return ifExists;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
 	public <T extends ExchangeRate> List<T> getByDatesRangeAndSymbolListAndType(LocalDate publishedStart,
-	LocalDate publishedEnd, List<String> codes, NbpType nbpType) {
+			LocalDate publishedEnd, List<String> codes, NbpType nbpType) {
+		List<T> ratesList;
 
 		if (Objects.isNull(nbpType)) {
 			nbpType = NbpType.A;
@@ -250,31 +255,43 @@ class RateServiceImpl implements RateService {
 		}
 
 		if (NbpType.A.equals(nbpType)) {
-			return (List<T>) ratesTypeARepository.findByDatesRangeAndSymbolList(publishedStart, publishedEnd, codes);
+			ratesList = (List<T>) ratesTypeARepository.findByDatesRangeAndSymbolList(publishedStart, publishedEnd,
+					codes);
 		} else if (NbpType.B.equals(nbpType)) {
-			return (List<T>) ratesTypeBRepository.findByDatesRangeAndSymbolList(publishedStart, publishedEnd, codes);
+			ratesList = (List<T>) ratesTypeBRepository.findByDatesRangeAndSymbolList(publishedStart, publishedEnd,
+					codes);
 		} else if (NbpType.C.equals(nbpType)) {
-			return (List<T>) ratesTypeCRepository.findByDatesRangeAndSymbolList(publishedStart, publishedEnd, codes);
+			ratesList = (List<T>) ratesTypeCRepository.findByDatesRangeAndSymbolList(publishedStart, publishedEnd,
+					codes);
 		} else {
 			throw new RateNotFoundException("Ralated NBP type table not supported: " + nbpType);
 		}
+
+		log.info("Found {} rates. Params {}, {}, {}, {}", ratesList.size(), publishedStart, publishedEnd, codes,
+				nbpType);
+		return ratesList;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly = true)
 	public <T extends ExchangeRate> List<T> getByDatesRangeAndType(LocalDate publishedStart, LocalDate publishedEnd,
-	NbpType nbpType) {
+			NbpType nbpType) {
+		List<T> ratesList;
 
 		if (Objects.isNull(nbpType) || NbpType.A.equals(nbpType)) {
-			return (List<T>) ratesTypeARepository.findByDatesRange(publishedStart, publishedEnd);
+			ratesList = (List<T>) ratesTypeARepository.findByDatesRange(publishedStart, publishedEnd);
 		} else if (NbpType.B.equals(nbpType)) {
-			return (List<T>) ratesTypeBRepository.findByDatesRange(publishedStart, publishedEnd);
+			ratesList = (List<T>) ratesTypeBRepository.findByDatesRange(publishedStart, publishedEnd);
 		} else if (NbpType.C.equals(nbpType)) {
-			return (List<T>) ratesTypeCRepository.findByDatesRange(publishedStart, publishedEnd);
+			ratesList = (List<T>) ratesTypeCRepository.findByDatesRange(publishedStart, publishedEnd);
 		} else {
 			throw new RateNotFoundException("Ralated NBP type table not supported: " + nbpType);
 		}
+
+		log.info("Found {} rates. Params {}, {}, {}", ratesList.size(), publishedStart, publishedEnd, nbpType);
+
+		return ratesList;
 	}
 
 }

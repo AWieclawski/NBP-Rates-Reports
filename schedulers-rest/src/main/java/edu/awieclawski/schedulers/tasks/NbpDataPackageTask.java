@@ -35,7 +35,7 @@ public class NbpDataPackageTask {
 		if (isBuild) {
 			log.info(" >>> START daily NBP data download day before");
 			try {
-				npDataPackageService.getATypeRatesTableByDateAndSave(LocalDate.now().minusDays(1), 0);
+				npDataPackageService.getATypeTableByDateAndSave(LocalDate.now().minusDays(1), 0);
 			} catch (Throwable t) {
 				log.warn("Thrown exception: {}. Error message: {}", t.getClass(), t.getMessage());
 			}

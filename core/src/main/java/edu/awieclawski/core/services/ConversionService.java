@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import edu.awieclawski.commons.dtos.data.ExchangeRateTypeADto;
+import edu.awieclawski.commons.dtos.data.bases.ExchangeRateDto;
 import edu.awieclawski.models.entities.Currency;
 import edu.awieclawski.models.entities.DataPackage;
 import edu.awieclawski.models.entities.ExchangeRate;
@@ -18,11 +18,11 @@ public interface ConversionService {
 
 	List<ExchangeRate> convertEceptOmittedDataPackagesAndSave(List<DataPackage> ommitedPackages);
 
-	List<ExchangeRateTypeADto> getExchangeRatesList(DataPackage data);
+	<T extends ExchangeRateDto> List<T> getExchangeRatesList(DataPackage data);
 
-	ExchangeRate trySaveRate(ExchangeRateTypeADto rate);
+	<T extends ExchangeRateDto> ExchangeRate trySaveRate(T rate);
 
-	ExchangeRate trySaveRateWithCurrency(ExchangeRateTypeADto rate, Currency currency);
+	<T extends ExchangeRateDto> ExchangeRate trySaveRateWithCurrency(T rate, Currency currency);
 
 	// default Collection utils
 

@@ -22,39 +22,73 @@ class NbpDataPackageServiceImpl extends ConnectorsFactory implements NbpDataPack
 
 	private final DataPackageService dataService;
 	private final NbpReactService reactService;
-
+	
 	@Override
 	@Transactional
 	public DataPackage getATypeRateByDateAndSymbolAndSave(LocalDate date, String currSymb, int count) {
 		DataResponseDto dataDto = doConnecATypeImpl(reactService, date, currSymb, count);
-
+		
 		return handleDataDto(dataDto, "ATypeRate By Date " + date + " And Symbol " + currSymb);
 	}
-
+	
 	@Override
 	@Transactional
 	public DataPackage getATypeRatesByDateRangeAndSymbolAndSave(LocalDate startDate, LocalDate endDate,
-	String currSymb, int count) {
+			String currSymb, int count) {
 		DataResponseDto dataDto = doConnectATypeImpl(reactService, startDate, endDate, currSymb, count);
+		
+		return handleDataDto(dataDto,
+				"ATypeRate By Date Range " + startDate + " - " + endDate + " And Symbol " + currSymb);
+	}
+
+	@Override
+	@Transactional
+	public DataPackage getCTypeRateByDateAndSymbolAndSave(LocalDate date, String currSymb, int count) {
+		DataResponseDto dataDto = doConnecCTypeImpl(reactService, date, currSymb, count);
+
+		return handleDataDto(dataDto, "CTypeRate By Date " + date + " And Symbol " + currSymb);
+	}
+
+	@Override
+	@Transactional
+	public DataPackage getCTypeRatesByDateRangeAndSymbolAndSave(LocalDate startDate, LocalDate endDate,
+	String currSymb, int count) {
+		DataResponseDto dataDto = doConnectCTypeImpl(reactService, startDate, endDate, currSymb, count);
 
 		return handleDataDto(dataDto,
-		"ATypeRate By Date Range " + startDate + " - " + endDate + " And Symbol " + currSymb);
+		"CTypeRate By Date Range " + startDate + " - " + endDate + " And Symbol " + currSymb);
 	}
-
+	
 	@Override
 	@Transactional
-	public DataPackage getATypeRatesTableByDateAndSave(LocalDate date, int count) {
+	public DataPackage getATypeTableByDateAndSave(LocalDate date, int count) {
 		DataResponseDto dataDto = doConnectATypeImpl(reactService, date, count);
-
+		
 		return handleDataDto(dataDto, "ATypeRates Table By Date " + date);
 	}
+	
+	@Override
+	@Transactional
+	public DataPackage getATypeTableByDateRangeAndSave(LocalDate startDate, LocalDate endDate, int count) {
+		DataResponseDto dataDto = doConnectATypeImpl(reactService, startDate, endDate, count);
+		
+		return handleDataDto(dataDto, "ATypeRates Table By Date Range " + startDate + " - " + endDate);
+	}
 
 	@Override
 	@Transactional
-	public DataPackage getATypeRatesTableByDateRangeAndSave(LocalDate startDate, LocalDate endDate, int count) {
-		DataResponseDto dataDto = doConnectATypeImpl(reactService, startDate, endDate, count);
+	public DataPackage getCTypeTableByDateAndSave(LocalDate date, int count) {
+		DataResponseDto dataDto = doConnectCTypeImpl(reactService, date, count);
 
-		return handleDataDto(dataDto, "ATypeRates Table By Date Range " + startDate + " - " + endDate);
+		return handleDataDto(dataDto, "CTypeRates Table By Date " + date);
+	}
+
+	@Override
+	@Transactional
+	public DataPackage getCTypeTableByDateRangeAndSave(LocalDate startDate, LocalDate endDate, int count) {
+		DataResponseDto dataDto = doConnectCTypeImpl(reactService, startDate, endDate, count);
+
+		return handleDataDto(dataDto, "CTypeRates Table By Date Range " + startDate + " - " + endDate);
 	}
 
 	/**

@@ -3,8 +3,8 @@ package edu.awieclawski.commons.beans;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component
-public class NbpEndpointBeans {
+@Component("endPointElements")
+public class NbpEndPointElements {
 
 	@Value("${nbp-api.ratesa}")
 	public String ratesA;
@@ -20,5 +20,8 @@ public class NbpEndpointBeans {
 
 	@Value("${nbp-api.ctablerate}")
 	public String cTableRate;
+
+	@Value("${nbp-api.format}")
+	public String dataFormat;
 
 }

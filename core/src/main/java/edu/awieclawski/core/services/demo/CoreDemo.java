@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
-import edu.awieclawski.commons.beans.NbpEndpointBeans;
+import edu.awieclawski.commons.beans.NbpEndPointElements;
+import edu.awieclawski.commons.dtos.enums.NbpType;
 import edu.awieclawski.core.exceptions.DemoRunException;
 import edu.awieclawski.core.facades.CurrencyFacade;
 import edu.awieclawski.core.facades.RateFacade;
@@ -38,7 +39,7 @@ public class CoreDemo {
 	private final ConversionService ratesConverterService;
 	private final RateFacade rateHandler;
 	private final CurrencyFacade currencyHandler;
-	private final NbpEndpointBeans endPoints;
+	private final NbpEndPointElements endPoints;
 
 	// standard messages
 	private static final String ERR_DEMO_END = "Error thrown. Failed Demo - END <<<";
@@ -50,6 +51,7 @@ public class CoreDemo {
 	// operational variables
 	private Boolean isTable;
 	private Boolean isRange;
+	private NbpType tableType;
 	private String currencyCode;
 	private LocalDate endDate;
 	private LocalDate startDate;
@@ -61,12 +63,13 @@ public class CoreDemo {
 	private List<Currency> opCurrencies;
 	private List<ExchangeRate> opRates;
 
-	private void init(Boolean forTable, Boolean forRange) {
+	private void init(Boolean forTable, Boolean forRange, NbpType type) {
 		opPackages = new ArrayList<>();
 		opCurrencies = new ArrayList<>();
 		opRates = new ArrayList<>();
 		isTable = forTable;
 		isRange = forRange;
+		tableType = type;
 		setContextVariables(LocalDate.now());
 
 		if (forTable == null) {
@@ -78,8 +81,8 @@ public class CoreDemo {
 		}
 	}
 
-	public void run(Boolean forTable, Boolean forRange) {
-		init(forTable, forRange);
+	public void run(Boolean forTable, Boolean forRange, NbpType type) {
+		init(forTable, forRange, type);
 		stageOne();
 		stageTwo();
 		stageThree();
@@ -97,8 +100,9 @@ public class CoreDemo {
 
 			try {
 				dates.add(
-				operatePair(requestService.getPairDatePackagesBeforeLastPackageRecordAndSave(startDate, 0, opPackages,
-				endPoint, currencyCode, endDate)));
+						operatePair(requestService.getPairDatePackagesBeforeLastPackageRecordAndSave(startDate, 0,
+								opPackages,
+								endPoint, currencyCode, endDate)));
 			} catch (Exception e) {
 				throw new DemoRunException("Error: " + ERR_DEMO_END);
 			}
@@ -107,14 +111,14 @@ public class CoreDemo {
 			prePackages.sort(Comparator.comparing(DataPackage::getCreatedAt));
 			Optional<DataPackage> earliest = prePackages.stream().findFirst();
 			earliest.ifPresentOrElse(
-			value -> dates.add(
-			operatePair(requestService.getPairDatePackagesBeforeLastPackageRecordAndSave(
-			value.getCreatedAt().toLocalDate().minusDays(1), // get day before last saved date
-			0, opPackages, endPoint, currencyCode, endDate))),
-			() -> {
-				log.error(NO_EARLIEST_DEMO_END);
-				return;
-			});
+					value -> dates.add(
+							operatePair(requestService.getPairDatePackagesBeforeLastPackageRecordAndSave(
+									value.getCreatedAt().toLocalDate().minusDays(1), // get day before last saved date
+									0, opPackages, endPoint, currencyCode, endDate))),
+					() -> {
+						log.error(NO_EARLIEST_DEMO_END);
+						return;
+					});
 		}
 
 		if (dates.isEmpty()) {
@@ -147,8 +151,8 @@ public class CoreDemo {
 		synchronized (list) {
 			try {
 				list.stream()
-				.filter(Objects::nonNull)
-				.forEach(this::deleteImportedRate);
+						.filter(Objects::nonNull)
+						.forEach(this::deleteImportedRate);
 			} catch (Exception e) {
 				throw new DemoRunException("Error: " + ERR_DEMO_END + e.getMessage() + " cause:" + e.getCause());
 			}
@@ -166,8 +170,8 @@ public class CoreDemo {
 		synchronized (currencies) {
 			try {
 				currencies.stream()
-				.filter(Objects::nonNull)
-				.forEach(this::deleteImportedCurrency);
+						.filter(Objects::nonNull)
+						.forEach(this::deleteImportedCurrency);
 			} catch (Exception e) {
 				throw new DemoRunException("Error: " + ERR_DEMO_END + e.getMessage() + " cause:" + e.getCause());
 			}
@@ -181,8 +185,8 @@ public class CoreDemo {
 		synchronized (list) {
 			try {
 				list.stream()
-				.filter(Objects::nonNull)
-				.forEach(this::deleteImportedPackage);
+						.filter(Objects::nonNull)
+						.forEach(this::deleteImportedPackage);
 			} catch (Exception e) {
 				throw new DemoRunException("Error: " + ERR_DEMO_END + e.getMessage() + " cause:" + e.getCause());
 			}
@@ -232,27 +236,68 @@ public class CoreDemo {
 	}
 
 	private void setContextVariables(LocalDate date) {
-		if (isTable && !isRange) {
-			endPoint = endPoints.aTableRate;
-			startDate = date;
-			endDate = null;
-			currencyCode = null;
-		} else if (isTable && isRange) {
-			endPoint = endPoints.aTableRate;
-			startDate = date.minusDays(7);
-			endDate = date;
-			currencyCode = null;
-		} else if (!isTable && !isRange) {
-			endPoint = endPoints.ratesA;
-			startDate = date;
-			endDate = null;
-			currencyCode = "eur";
-		} else {
-			endPoint = endPoints.ratesA;
-			startDate = date.minusDays(7);
-			endDate = date;
-			currencyCode = "eur";
+		if (NbpType.A.equals(tableType)) {
+			if (isTable && !isRange) {
+				endPoint = endPoints.aTableRate;
+				startDate = date;
+				endDate = null;
+				currencyCode = null;
+			} else if (isTable && isRange) {
+				endPoint = endPoints.aTableRate;
+				startDate = date.minusDays(7);
+				endDate = date;
+				currencyCode = null;
+			} else if (!isTable && !isRange) {
+				endPoint = endPoints.ratesA;
+				startDate = date;
+				endDate = null;
+				currencyCode = "eur";
+			} else {
+				endPoint = endPoints.ratesA;
+				startDate = date.minusDays(7);
+				endDate = date;
+				currencyCode = "eur";
+			}
 		}
+		
+		if (NbpType.C.equals(tableType)) {
+			if (isTable && !isRange) {
+				endPoint = endPoints.cTableRate;
+				startDate = date;
+				endDate = null;
+				currencyCode = null;
+			} else if (isTable && isRange) {
+				endPoint = endPoints.cTableRate;
+				startDate = date.minusDays(7);
+				endDate = date;
+				currencyCode = null;
+			} else if (!isTable && !isRange) {
+				endPoint = endPoints.ratesC;
+				startDate = date;
+				endDate = null;
+				currencyCode = "eur";
+			} else {
+				endPoint = endPoints.ratesC;
+				startDate = date.minusDays(7);
+				endDate = date;
+				currencyCode = "eur";
+			}
+		}
+		
+		if (NbpType.B.equals(tableType)) {
+			if (isTable && !isRange) {
+				endPoint = endPoints.cTableRate;
+				startDate = date;
+				endDate = null;
+				currencyCode = null;
+			} else if (isTable && isRange) {
+				endPoint = endPoints.cTableRate;
+				startDate = date.minusDays(7);
+				endDate = date;
+				currencyCode = null;
+			} 
+		}
+
 	}
 
 }

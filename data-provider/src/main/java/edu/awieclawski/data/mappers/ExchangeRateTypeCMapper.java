@@ -33,8 +33,8 @@ class ExchangeRateTypeCMapper {
 			entity.setNbpTable(dto.getNbpTable());
 			entity.setPublished(dto.getPublished());
 			entity.setTradingDate(dto.getTradingDate());
-			entity.setAsk(entity.getAsk());
-			entity.setBid(entity.getBid());
+			entity.setAsk(dto.getAsk());
+			entity.setBid(dto.getBid());
 		}
 		return entity;
 	}

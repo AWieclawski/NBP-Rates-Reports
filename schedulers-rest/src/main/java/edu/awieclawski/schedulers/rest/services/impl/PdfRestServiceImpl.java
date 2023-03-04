@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import edu.awieclawski.commons.beans.NbpEndpointBeans;
+import edu.awieclawski.commons.beans.NbpEndPointElements;
 import edu.awieclawski.commons.dtos.enums.NbpType;
 import edu.awieclawski.core.facades.RateFacade;
 import edu.awieclawski.core.services.ConversionService;
@@ -29,10 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 class PdfRestServiceImpl implements PdfRestService {
 	private final PdfService htmlToPdfService;
-	private final RateFacade rateHandleService;
+	private final RateFacade rateFacade;
 	private final ConversionService conversionService;
 	private final NbpRequestService requestService;
-	private final NbpEndpointBeans endPoints;
+	private final NbpEndPointElements endPoints;
 	private final HmtlFactory htmlBuilder;
 
 	@Autowired
@@ -40,13 +40,13 @@ class PdfRestServiceImpl implements PdfRestService {
 
 	@Override
 	public BinaryDto getTestPdf() {
-		List<ExchangeRate> rates = rateHandleService.getDemo();
+		List<ExchangeRate> rates = rateFacade.getDemo();
 		LocalDate date;
 		String endPoint = endPoints.aTableRate;
 
 		if (rates == null) {
-			date = requestService.getPackagesAndSaveIfDateBeforeLastExchangeRateDate(LocalDate.now(), 0, null, endPoint,
-			null, null);
+			date = requestService.getPackagesAndSaveIfDateBeforeLastExchangeRateDate(LocalDate.now(), 0, null, endPoint, NbpType.A,
+					null, null);
 			rates = conversionService.convertNewDataPackagesAndSave();
 		} else {
 			date = rates.get(0).getPublished();
@@ -63,15 +63,16 @@ class PdfRestServiceImpl implements PdfRestService {
 		validator.validate(report);
 		List<ExchangeRate> rates = new ArrayList<>();
 		LocalDate dateStart = report.getValidToStart().minusDays(1);
-		LocalDate dateEnd = report.getValidToEnd() != null ? report.getValidToEnd().minusDays(1)
-		: report.getValidToStart();
+		LocalDate dateEnd = report.getValidToEnd() != null
+				? report.getValidToEnd().minusDays(1)
+				: report.getValidToStart();
 		List<String> codes = report.getCurrencies();
 		NbpType nbpType = report.getNbpType();
 		requestService.getDateOfLastDataPackagesByTypeAndSave(dateStart, 0, null, nbpType, codes, dateEnd);
 		List<ExchangeRate> convRates = conversionService.convertNewDataPackagesAndSave();
 		log.info("Converted just {} Data Packages.", convRates.size());
-		rates.addAll(rateHandleService.getByDatesRangeAndSymbolListAndType(dateStart, dateEnd, codes, nbpType));
-		rateHandleService.makeDistinctById(rates);
+		rates.addAll(rateFacade.getByDatesRangeAndSymbolListAndType(dateStart, dateEnd, codes, nbpType));
+		rateFacade.makeDistinctById(rates);
 
 		if (CollectionUtils.isEmpty(rates)) {
 			htmlToPdfService.getTestPdf();

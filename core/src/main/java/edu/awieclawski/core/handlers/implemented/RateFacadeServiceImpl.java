@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import edu.awieclawski.commons.dtos.data.ExchangeRateTypeADto;
 import edu.awieclawski.commons.dtos.data.bases.ExchangeRateDto;
 import edu.awieclawski.commons.dtos.enums.NbpType;
 import edu.awieclawski.core.facades.BaseFacade;
@@ -35,8 +34,8 @@ class RateFacadeServiceImpl extends BaseFacade implements RateFacade {
 	@Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
 	public ExchangeRate findIfExistByCodeDateTable(String code, LocalDate published, String table) {
 		return rateService.findByCodePublishedTable(Objects.requireNonNull(code),
-		Objects.requireNonNull(published),
-		Objects.requireNonNull(table));
+				Objects.requireNonNull(published),
+				Objects.requireNonNull(table));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -54,21 +53,21 @@ class RateFacadeServiceImpl extends BaseFacade implements RateFacade {
 	@Override
 	public <T extends ExchangeRate> List<T> makeDistinctById(List<T> rates) {
 		return rates.stream().filter(Objects::nonNull)
-		.filter(distinctByKey(ExchangeRate::getId)).collect(Collectors.toList());
+				.filter(distinctByKey(ExchangeRate::getId)).collect(Collectors.toList());
 	}
 
 	@Override
 	public <T extends ExchangeRate> List<T> makeDistinctByTable(List<T> rates) {
 		return rates.stream().filter(Objects::nonNull)
-		.filter(distinctByKey(ExchangeRate::getNbpTable)).collect(Collectors.toList());
+				.filter(distinctByKey(ExchangeRate::getNbpTable)).collect(Collectors.toList());
 	}
 
 	@Override
 	public <T extends ExchangeRate> List<Currency> getDistinctCurrencies(List<T> rates) {
 		return rates.stream().filter(Objects::nonNull)
-		.map(ExchangeRate::getCurrency)
-		.filter(distinctByKey(Currency::getCode))
-		.collect(Collectors.toList());
+				.map(ExchangeRate::getCurrency)
+				.filter(distinctByKey(Currency::getCode))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -87,7 +86,7 @@ class RateFacadeServiceImpl extends BaseFacade implements RateFacade {
 	 */
 	@Override
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public ExchangeRate save(ExchangeRateTypeADto rate, Currency currency) {
+	public <T extends ExchangeRateDto> ExchangeRate save(T rate, Currency currency) {
 		return rateService.saveWithCurrency(rate, currency);
 	}
 
@@ -105,15 +104,15 @@ class RateFacadeServiceImpl extends BaseFacade implements RateFacade {
 
 		if (opRates != null) {
 			LocalDate maxDate = opRates.stream()
-			.filter(Objects::nonNull)
-			.map(u -> u.getPublished())
-			.max(LocalDate::compareTo).orElse(null);
+					.filter(Objects::nonNull)
+					.map(u -> u.getPublished())
+					.max(LocalDate::compareTo).orElse(null);
 
 			if (maxDate != null) {
 				rates = opRates.stream()
-				.filter(Objects::nonNull)
-				.filter(r -> r.getPublished().isAfter(maxDate.minusDays(1)))
-				.collect(Collectors.toList());
+						.filter(Objects::nonNull)
+						.filter(r -> r.getPublished().isAfter(maxDate.minusDays(1)))
+						.collect(Collectors.toList());
 			}
 		}
 
@@ -122,7 +121,7 @@ class RateFacadeServiceImpl extends BaseFacade implements RateFacade {
 
 	@Override
 	public <T extends ExchangeRate> List<T> getByDatesRangeAndSymbolListAndType(LocalDate publishedStart,
-	LocalDate publishedEnd, List<String> codes, NbpType nbpType) {
+			LocalDate publishedEnd, List<String> codes, NbpType nbpType) {
 
 		if (publishedStart != null && CollectionUtils.isEmpty(codes)) {
 			return rateService.getByDatesRangeAndType(publishedStart, publishedEnd, nbpType);

@@ -22,7 +22,7 @@ public interface ConnectionsRepeater {
 	 * 
 	 * @param action
 	 */
-	public default void tryCatchChannelException(Runnable action, int count) {
+	public default void tryCatchException(Runnable action, int count) {
 		try {
 			action.run();
 		} catch (ChannelException | WebClientRequestException e) {
@@ -35,7 +35,7 @@ public interface ConnectionsRepeater {
 					count++;
 
 					LogHolder.log.error("Action emergency attempt {}", count);
-					tryCatchChannelException(action, count);
+					tryCatchException(action, count);
 				} else {
 					throw new NbpIntegrationException("NBP API error after " + count + " attempts ");
 				}

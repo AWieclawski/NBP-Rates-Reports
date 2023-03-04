@@ -10,21 +10,23 @@ public interface NbpIntegrationService {
 
 	DataResponseDto getATypeRateByDateAndSymbol(LocalDate publicationDate, String currencySymbol);
 
-	DataResponseDto getATypeRatesByDatesRangeAndSymbol(LocalDate startDate, LocalDate endDate,
-			String currencySymbol);
+	DataResponseDto getATypeRatesByDatesRangeAndSymbol(LocalDate startDate, LocalDate endDate, String currencySymbol);
 
 	DataResponseDto getCTypeRateByDateAndSymbol(LocalDate publicationDate, String currencySymbol);
 
-	DataResponseDto getCTypeRatesByDateRangeAndSymbol(LocalDate startDate, LocalDate endDate,
-			String currencySymbol);
+	DataResponseDto getCTypeRatesByDatesRangeAndSymbol(LocalDate startDate, LocalDate endDate, String currencySymbol);
 
-	DataResponseDto getATypeRatesTableByDate(LocalDate publicationDate);
+	DataResponseDto getATypeTableByDate(LocalDate publicationDate);
 
-	DataResponseDto getATypeRatesTableByDatesRange(LocalDate startDate, LocalDate endDate);
+	DataResponseDto getATypeTableByDatesRange(LocalDate startDate, LocalDate endDate);
 
-	DataResponseDto getCTypeRateTableByDate(LocalDate publicationDate);
+	DataResponseDto getCTypeTableByDate(LocalDate publicationDate);
 
-	DataResponseDto getCTypeRateTableByDateRange(LocalDate startDate, LocalDate endDate);
+	DataResponseDto getCTypeTableByDatesRange(LocalDate startDate, LocalDate endDate);
+
+	DataResponseDto getBTypeTableByDate(LocalDate publicationDate);
+
+	DataResponseDto getBTypeTableByDatesRange(LocalDate startDate, LocalDate endDate);
 
 	ClientHttpConnector customHttpConnector(int TIMEOUT, int TIMEOUT_READ, int TIMEOUT_WRITE);
 
