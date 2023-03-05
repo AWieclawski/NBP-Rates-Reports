@@ -2,6 +2,7 @@ package edu.awieclawski.webclients.services.implemented;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
@@ -11,13 +12,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import edu.awieclawski.commons.beans.NbpEndPointElements;
 import edu.awieclawski.webclients.connectors.CustomHttpConnector;
 import edu.awieclawski.webclients.dtos.DataResponseDto;
-import edu.awieclawski.webclients.services.NbpReactService;
+import edu.awieclawski.webclients.filters.CustomWebClientFilter;
+import edu.awieclawski.webclients.handlers.CustomErrorHandler;
+import edu.awieclawski.webclients.services.NbpIntegrationService;
 import edu.awieclawski.webclients.utils.PathGenerator;
+import reactor.core.publisher.Mono;
 
 /**
  * end-point rules: http://api.nbp.pl/#kursySingle, http://api.nbp.pl/#kursyFull
@@ -30,7 +36,8 @@ import edu.awieclawski.webclients.utils.PathGenerator;
 
 @Service
 @DependsOn("endPointElements")
-public class NbpReactServiceImpl implements NbpReactService {
+public class NbpReactServiceImpl implements NbpIntegrationService {
+	private static final String ERROR_MSG = "NBP integration REACT service problem!";
 	private static final String PARAM = "format";
 	private final WebClient webClient;
 	private final PathGenerator pathUtil;
@@ -44,8 +51,6 @@ public class NbpReactServiceImpl implements NbpReactService {
 	private String aTableRate;
 	private String bTableRate;
 	private String cTableRate;
-
-//	@Value("${nbp-api.format}")
 	private String dataFormat;
 
 	public NbpReactServiceImpl(
@@ -85,24 +90,23 @@ public class NbpReactServiceImpl implements NbpReactService {
 	private void paramsInit() {
 		reqParams = pathUtil.setParamsMap(PARAM, dataFormat);
 	}
-
+	
 	/**
 	 * Request remote address example:
 	 * http://api.nbp.pl/api/exchangerates/rates/a/usd/2016-04-04?format=json
 	 */
 	@Override
 	public DataResponseDto getATypeRateByDateAndSymbol(LocalDate publicationDate, String currencySymbol) {
-//		final MultiValueMap<String, String> params = pathUtil.setParamsMap(PARAM, dataFormat);
 		final URI uriBuilt = pathUtil.completeUri(aRates, currencySymbol, publicationDate);
 		String targetUrl = nbpApiUrl + pathUtil.buildFinalUri(reqParams, uriBuilt).toString();
-
+		
 		return DataResponseDto.builder()
 				.jsonData(getRatesAsString(reqParams, uriBuilt))
 				.url(targetUrl)
 				.endPoint(aRates)
 				.build();
 	}
-
+	
 	/**
 	 * Request remote address example:
 	 * http://api.nbp.pl/api/exchangerates/rates/a/usd/2016-04-04/2016-04-09?format=json
@@ -110,16 +114,16 @@ public class NbpReactServiceImpl implements NbpReactService {
 	@Override
 	public DataResponseDto getATypeRatesByDatesRangeAndSymbol(LocalDate startDate, LocalDate endDate,
 			String currencySymbol) {
-//		final MultiValueMap<String, String> params = pathUtil.setParamsMap(PARAM, dataFormat);
 		final URI uriBuilt = pathUtil.completeUri(aRates, currencySymbol, startDate, endDate);
 		String targetUrl = nbpApiUrl + pathUtil.buildFinalUri(reqParams, uriBuilt).toString();
-
+		
 		return DataResponseDto.builder()
 				.jsonData(getRatesAsString(reqParams, uriBuilt))
 				.url(targetUrl)
 				.endPoint(aRates)
 				.build();
 	}
+
 
 	/**
 	 * Request remote address example:
@@ -261,6 +265,18 @@ public class NbpReactServiceImpl implements NbpReactService {
 	@Override
 	public ClientHttpConnector customHttpConnector(int timeout, int timeRead, int timeWrite) {
 		return new CustomHttpConnector().clientConnector(timeout, timeRead, timeWrite, false);
+	}
+
+	private Function<ClientResponse, Mono<? extends Throwable>> errorHandler() {
+		return new CustomErrorHandler().handleErrorResponse(ERROR_MSG);
+	}
+
+	private ExchangeFilterFunction requestExchangeFilterFunction() {
+		return new CustomWebClientFilter().loggRequest();
+	}
+
+	private ExchangeFilterFunction responseExchangeFilterFunction() {
+		return new CustomWebClientFilter().loggResponse();
 	}
 
 }

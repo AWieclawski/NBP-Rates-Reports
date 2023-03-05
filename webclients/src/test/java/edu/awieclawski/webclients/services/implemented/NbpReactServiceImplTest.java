@@ -10,14 +10,14 @@ import org.springframework.test.context.ActiveProfiles;
 
 import edu.awieclawski.webclients.exceptions.NbpIntegrationException;
 import edu.awieclawski.webclients.services.ConnectionsRepeater;
-import edu.awieclawski.webclients.services.NbpReactService;
+import edu.awieclawski.webclients.services.NbpIntegrationService;
 
 @SpringBootTest
 @ActiveProfiles("test")
 class NbpReactServiceImplTest implements ConnectionsRepeater {
 
 	@Autowired
-	private NbpReactService nbpIntegrationService;
+	private NbpIntegrationService nbpIntegrationService;
 
 	@Test
 	void testGetATypeRateByValidDateAndValidSymbolDoesNotThrow() {

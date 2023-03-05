@@ -27,7 +27,7 @@ public interface NbpIntegrationService {
 	DataResponseDto getBTypeTableByDate(LocalDate publicationDate);
 
 	DataResponseDto getBTypeTableByDatesRange(LocalDate startDate, LocalDate endDate);
-
+	
 	ClientHttpConnector customHttpConnector(int TIMEOUT, int TIMEOUT_READ, int TIMEOUT_WRITE);
 
 }

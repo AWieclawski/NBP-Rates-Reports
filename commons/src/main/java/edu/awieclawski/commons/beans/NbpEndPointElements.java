@@ -23,5 +23,8 @@ public class NbpEndPointElements {
 
 	@Value("${nbp-api.format}")
 	public String dataFormat;
+	
+	@Value("${nbp-api.attempts}")
+	public int maxCount;
 
 }

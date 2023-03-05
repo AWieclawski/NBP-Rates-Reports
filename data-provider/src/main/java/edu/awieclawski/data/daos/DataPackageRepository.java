@@ -14,6 +14,38 @@ public interface DataPackageRepository extends JpaRepository<DataPackage, Long> 
 	List<DataPackage> findByUrl(String url);
 
 	List<DataPackage> findByConvertedFalse();
+	
+	@Query("SELECT d FROM DataPackage d WHERE d.url LIKE %:endPoint%  "
+			+ " AND d.url LIKE %:code% "
+			+ " AND d.url LIKE %:date% ")
+	List<DataPackage> findByUrlLikeDaySingle(
+			@Param("endPoint") String endPoint,
+			@Param("code") String code,
+			@Param("date") String date);
+	
+	@Query("SELECT d FROM DataPackage d WHERE d.url LIKE %:endPoint%  "
+			+ " AND d.url LIKE %:date% "
+			+ " AND d.url LIKE %:code% "
+			+ " AND d.url LIKE %:dateEnd% ")
+	List<DataPackage> findByUrlLikeRangeSingle(
+			@Param("endPoint") String endPoint,
+			@Param("code") String code,
+			@Param("date") String date,
+			@Param("dateEnd") String dateEnd);
+
+	@Query("SELECT d FROM DataPackage d WHERE d.url LIKE %:endPoint%  "
+			+ " AND d.url LIKE %:date% ")
+	List<DataPackage> findByUrlLikeDayTable(
+			@Param("endPoint") String endPoint,
+			@Param("date") String date);
+
+	@Query("SELECT d FROM DataPackage d WHERE d.url LIKE %:endPoint%  "
+			+ " AND d.url LIKE %:date% "
+			+ " AND d.url LIKE %:dateEnd% ")
+	List<DataPackage> findByUrlLikeRangeTable(
+			@Param("endPoint") String endPoint,
+			@Param("date") String date,
+			@Param("dateEnd") String dateEnd);
 
 	@Modifying
 	@Query("UPDATE DataPackage d SET d.converted = TRUE WHERE d.id = :id")

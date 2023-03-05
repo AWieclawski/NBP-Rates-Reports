@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.util.Pair;
+import javax.annotation.PostConstruct;
+
+import org.springframework.context.annotation.DependsOn;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,43 +26,76 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@DependsOn("endPointElements")
 class NbpRequestServiceImpl implements NbpRequestService {
 
 	private final NbpDataPackageService dataService;
 	private final RateFacade rateFacade;
 	private final NbpEndPointElements endPoints;
 
-	@Value("${nbp-api.attempts}")
-	private static int maxCount;
+	private int maxCount;
+
+	@PostConstruct
+	private void init() {
+		maxCount = endPoints.maxCount;
+	}
 
 	@Override
 	@Transactional
-	public Pair<LocalDate, List<DataPackage>> getPairDatePackagesBeforeLastPackageRecordAndSave(LocalDate date,
+	public Pair<LocalDate, List<DataPackage>> getPairDatePackagesIfLastPackageRecordAndSave(LocalDate date,
 			int counter, List<DataPackage> opPackages, String endPoint, String currencyCode, LocalDate endDate) {
+		Boolean connFailed = true;
 
 		if (opPackages == null) {
 			opPackages = new ArrayList<>();
 		}
 
 		try {
-			List<DataPackage> dataList = typeConnectionSwitch(date, endPoint, currencyCode, endDate);
+			List<Pair<Boolean, DataPackage>> pairsList = typeConnectionSwitch(date, endPoint, currencyCode, endDate);
+			List<DataPackage> dataList = pairsList.stream()
+					.filter(Objects::nonNull)
+					.map(Pair::getRight)
+					.toList();
+			connFailed = pairsList.stream()
+					.filter(Objects::nonNull)
+					.map(Pair::getLeft)
+					.anyMatch(b -> b.equals(false));
 
 			if (!dataList.isEmpty()) {
 				opPackages.addAll(dataList);
-			} else {
+			} else if (connFailed) {
 				log.info("Connection counter reset to {}", --counter);
 				date = (dayBack(date, counter, opPackages, endPoint, currencyCode, endDate));
+			} else {
+
+				log.info("Connection was ok?", !connFailed);
+
+				if (endDate == null) {
+
+					if (endPoint.contains("tables")) {
+						dataList = dataService.getByUrlLikeDayTable(endPoint, date);
+					} else {
+						dataList = dataService.getByUrlLikeDaySingle(endPoint, currencyCode, date);
+					}
+
+				} else {
+
+					if (endPoint.contains("tables")) {
+						dataList = dataService.getByUrlLikeRangeTable(endPoint, date, endDate);
+					} else {
+						dataList = dataService.getByUrlLikeRangeSingle(endPoint, currencyCode, date, endDate);
+					}
+				}
+
+				log.info("DataPackages found {}.", dataList);
 			}
 
-			if (CollectionUtils.isEmpty(opPackages)) {
-				date = (dayBack(date, counter, opPackages, endPoint, currencyCode, endDate));
-				log.info("DataPackage list found empty. Operational date changed to: {}", date);
-			}
 		} catch (Throwable t) {
-			log.warn("During finding Previous Business-Day for date: {} an error was thrown: {} | Error message: {}",
-					date, t.getClass().getSimpleName(), t.getMessage());
+			log.warn(
+					"During finding Data Packages for date: {} and endPoint {} an error was thrown: {} | Error message: {}",
+					date, endPoint, t.getClass().getSimpleName(), t.getMessage());
 
-			if (counter < maxCount) {
+			if (counter < maxCount && connFailed) {
 				date = (dayBack(date, counter, opPackages, endPoint, currencyCode, endDate));
 			} else {
 				throw new NbpRequestException("FAILED after " + counter + " attempts! Last used date: " + date);
@@ -71,9 +105,6 @@ class NbpRequestServiceImpl implements NbpRequestService {
 		return Pair.of(date, opPackages);
 	}
 
-	/**
-	 * Used by Demo with NbpType.A NBP table type
-	 */
 	@Override
 	@Transactional
 	public LocalDate getPackagesAndSaveIfDateBeforeLastExchangeRateDate(LocalDate date, int counter,
@@ -91,8 +122,8 @@ class NbpRequestServiceImpl implements NbpRequestService {
 		}
 
 		String currencyCode = codes.size() > 0 ? codes.get(0) : null;
-		return getPairDatePackagesBeforeLastPackageRecordAndSave(date, counter, opPackages, endPoint, currencyCode,
-				endDate).getFirst();
+		return getPairDatePackagesIfLastPackageRecordAndSave(date, counter, opPackages, endPoint, currencyCode,
+				endDate).getLeft();
 	}
 
 	private LocalDate dayBack(LocalDate date, int counter, List<DataPackage> opPackages, String endPoint,
@@ -105,40 +136,44 @@ class NbpRequestServiceImpl implements NbpRequestService {
 
 		counter++;
 
-		return getPairDatePackagesBeforeLastPackageRecordAndSave(date, counter, opPackages, endPoint, currencyCode,
-				endDate).getFirst();
+		return getPairDatePackagesIfLastPackageRecordAndSave(date, counter, opPackages, endPoint, currencyCode,
+				endDate).getLeft();
 	}
 
-	private List<DataPackage> typeConnectionSwitch(LocalDate date, String endPoint, String currencyCode,
+	private List<Pair<Boolean, DataPackage>> typeConnectionSwitch(LocalDate date, String endPoint, String currencyCode,
 			LocalDate endDate)
 			throws ConverterException {
-		List<DataPackage> dataList = new ArrayList<>();
-		DataPackage entity = null;
+		List<Pair<Boolean, DataPackage>> dataList = new ArrayList<>();
+		Pair<Boolean, DataPackage> pair = null;
 
 		if (Objects.equals(endPoints.aTableRate, endPoint) && endDate == null) {
-			entity = dataService.getATypeTableByDateAndSave(date, 0);
+			pair = dataService.getATypeTableByDateAndSave(date, 0);
 		} else if (Objects.equals(endPoints.ratesA, endPoint) && endDate == null) {
-			entity = dataService.getATypeRateByDateAndSymbolAndSave(date, currencyCode, 0);
+			pair = dataService.getATypeRateByDateAndSymbolAndSave(date, currencyCode, 0);
 		} else if (Objects.equals(endPoints.aTableRate, endPoint) && endDate != null) {
-			entity = dataService.getATypeTableByDateRangeAndSave(date, endDate, 0);
+			pair = dataService.getATypeTableByDateRangeAndSave(date, endDate, 0);
 		} else if (Objects.equals(endPoints.ratesA, endPoint) && endDate != null) {
-			entity = dataService.getATypeRatesByDateRangeAndSymbolAndSave(date, endDate, currencyCode, 0);
+			pair = dataService.getATypeRatesByDateRangeAndSymbolAndSave(date, endDate, currencyCode, 0);
+		} else if (Objects.equals(endPoints.bTableRate, endPoint) && endDate == null) {
+			pair = dataService.getBTypeTableByDateAndSave(date, 0);
+		} else if (Objects.equals(endPoints.bTableRate, endPoint) && endDate != null) {
+			pair = dataService.getBTypeTableByDateRangeAndSave(date, endDate, 0);
 		} else if (Objects.equals(endPoints.cTableRate, endPoint) && endDate == null) {
-			entity = dataService.getCTypeTableByDateAndSave(date, 0);
+			pair = dataService.getCTypeTableByDateAndSave(date, 0);
 		} else if (Objects.equals(endPoints.ratesC, endPoint) && endDate == null) {
-			entity = dataService.getCTypeRateByDateAndSymbolAndSave(date, currencyCode, 0);
+			pair = dataService.getCTypeRateByDateAndSymbolAndSave(date, currencyCode, 0);
 		} else if (Objects.equals(endPoints.cTableRate, endPoint) && endDate != null) {
-			entity = dataService.getCTypeTableByDateRangeAndSave(date, endDate, 0);
+			pair = dataService.getCTypeTableByDateRangeAndSave(date, endDate, 0);
 		} else if (Objects.equals(endPoints.ratesC, endPoint) && endDate != null) {
-			entity = dataService.getCTypeRatesByDateRangeAndSymbolAndSave(date, endDate, currencyCode, 0);
+			pair = dataService.getCTypeRatesByDateRangeAndSymbolAndSave(date, endDate, currencyCode, 0);
 		}
 
 		else {
 			throw new ConverterException("Ralated NBP end-point not supported: " + endPoint);
 		}
 
-		if (entity != null) {
-			dataList.add(entity);
+		if (pair != null) {
+			dataList.add(pair);
 		}
 
 		return dataList;

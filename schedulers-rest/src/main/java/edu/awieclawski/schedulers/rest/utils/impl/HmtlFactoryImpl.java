@@ -70,8 +70,15 @@ class HmtlFactoryImpl implements HmtlFactory {
 
 	private StringBuffer rowHandlerByTypeRate(ExchangeRate rate, StringBuffer row, String currency) {
 
-		if (rate instanceof ExchangeRateTypeA || rate instanceof ExchangeRateTypeB) {
+		if (rate instanceof ExchangeRateTypeA) {
 			ExchangeRateTypeA rateInn = (ExchangeRateTypeA) rate;
+			BigDecimal exchRate = rateInn.getRate();
+			LocalDate validTo = rate.getPublished().plusDays(1);
+			row.append(wrapInRow((wrapInCell(currency)
+					.append(wrapInCell(exchRate != null ? exchRate.toString() : ""))
+					.append(wrapInCell(validTo.toString())))));
+		} else if (rate instanceof ExchangeRateTypeB) {
+			ExchangeRateTypeB rateInn = (ExchangeRateTypeB) rate;
 			BigDecimal exchRate = rateInn.getRate();
 			LocalDate validTo = rate.getPublished().plusDays(1);
 			row.append(wrapInRow((wrapInCell(currency)

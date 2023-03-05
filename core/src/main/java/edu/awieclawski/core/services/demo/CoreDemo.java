@@ -9,9 +9,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import edu.awieclawski.commons.beans.NbpEndPointElements;
@@ -20,7 +20,7 @@ import edu.awieclawski.core.exceptions.DemoRunException;
 import edu.awieclawski.core.facades.CurrencyFacade;
 import edu.awieclawski.core.facades.RateFacade;
 import edu.awieclawski.core.services.ConversionService;
-import edu.awieclawski.core.services.NbpRequestService;
+import edu.awieclawski.core.services.DemoRequestService;
 import edu.awieclawski.data.services.DataPackageService;
 import edu.awieclawski.models.entities.Currency;
 import edu.awieclawski.models.entities.DataPackage;
@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class CoreDemo {
 
-	private final NbpRequestService requestService;
+	private final DemoRequestService requestService;
 	private final DataPackageService dataService;
 	private final ConversionService ratesConverterService;
 	private final RateFacade rateHandler;
@@ -140,8 +140,8 @@ public class CoreDemo {
 	}
 
 	private LocalDate operatePair(Pair<LocalDate, List<DataPackage>> pair) {
-		opPackages = pair.getSecond(); // avoid remove records existed before demo
-		return pair.getFirst();
+		opPackages = pair.getRight(); // avoid remove records existed before demo
+		return pair.getLeft();
 	}
 
 	public void stageTwo() {
@@ -259,7 +259,7 @@ public class CoreDemo {
 				currencyCode = "eur";
 			}
 		}
-		
+
 		if (NbpType.C.equals(tableType)) {
 			if (isTable && !isRange) {
 				endPoint = endPoints.cTableRate;
@@ -283,7 +283,7 @@ public class CoreDemo {
 				currencyCode = "eur";
 			}
 		}
-		
+
 		if (NbpType.B.equals(tableType)) {
 			if (isTable && !isRange) {
 				endPoint = endPoints.cTableRate;
@@ -295,7 +295,7 @@ public class CoreDemo {
 				startDate = date.minusDays(7);
 				endDate = date;
 				currencyCode = null;
-			} 
+			}
 		}
 
 	}

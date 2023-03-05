@@ -20,10 +20,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import edu.awieclawski.commons.beans.NbpEndPointElements;
 import edu.awieclawski.commons.dtos.data.CurrencyDto;
 import edu.awieclawski.commons.dtos.data.ExchangeRateTypeADto;
+import edu.awieclawski.commons.dtos.data.ExchangeRateTypeBDto;
 import edu.awieclawski.commons.dtos.data.ExchangeRateTypeCDto;
 import edu.awieclawski.commons.dtos.data.bases.ExchangeRateDto;
 import edu.awieclawski.commons.dtos.rates.NbpARate;
 import edu.awieclawski.commons.dtos.rates.NbpATableRate;
+import edu.awieclawski.commons.dtos.rates.NbpBTableRate;
 import edu.awieclawski.commons.dtos.rates.NbpCRate;
 import edu.awieclawski.commons.dtos.rates.NbpCTableRate;
 import edu.awieclawski.commons.dtos.responses.NbpATable;
@@ -61,6 +63,9 @@ class ConversionServiceImpl implements ConversionService {
 			});
 	public final static NbpRatesMapper<List<NbpCTable<NbpCTableRate>>> mapperListNbpCTableNbpCTableRate = new NbpRatesMapper<>(
 			new TypeReference<List<NbpCTable<NbpCTableRate>>>() {
+			});
+	public final static NbpRatesMapper<List<NbpATable<NbpBTableRate>>> mapperListNbpATableNbpBTableRate = new NbpRatesMapper<>(
+			new TypeReference<List<NbpATable<NbpBTableRate>>>() {
 			});
 
 	@Override
@@ -149,6 +154,8 @@ class ConversionServiceImpl implements ConversionService {
 			rates = (List<T>) getNbpSingleWithNbpARate(data);
 		} else if (Objects.equals(endPoints.aTableRate, endPoint)) {
 			rates = (List<T>) getNbpATableWithNbpATableRate(data);
+		} else if (Objects.equals(endPoints.bTableRate, endPoint)) {
+			rates = (List<T>) getNbpATableWithNbpBTableRate(data);
 		} else if (Objects.equals(endPoints.ratesC, endPoint)) {
 			rates = (List<T>) getNbpSingleWithNbpCRate(data);
 		} else if (Objects.equals(endPoints.cTableRate, endPoint)) {
@@ -224,6 +231,27 @@ class ConversionServiceImpl implements ConversionService {
 				for (NbpATableRate subDto : dto.getRates()) {
 					CurrencyDto currency = rateFacade.getCurrencyDto(subDto.getCode(), subDto.getCurrency());
 					ExchangeRateTypeADto rate = rateFacade.getExchangeRateFromNbpATableRate(subDto, currency,
+							dto.getNo(),
+							dto.getEffectiveDate());
+					rates.add(rate);
+				}
+			}
+		}
+
+		return rates;
+	}
+
+	private List<ExchangeRateTypeBDto> getNbpATableWithNbpBTableRate(DataPackage data) {
+		List<ExchangeRateTypeBDto> rates = new ArrayList<>();
+		List<NbpATable<NbpBTableRate>> dtoList = mapperListNbpATableNbpBTableRate.map(data.getJsonData());
+
+		for (NbpATable<NbpBTableRate> dto : dtoList) {
+
+			if (dto.getRates() != null) {
+
+				for (NbpBTableRate subDto : dto.getRates()) {
+					CurrencyDto currency = rateFacade.getCurrencyDto(subDto.getCode(), subDto.getCurrency());
+					ExchangeRateTypeBDto rate = rateFacade.getExchangeRateFromNbpBTableRate(subDto, currency,
 							dto.getNo(),
 							dto.getEffectiveDate());
 					rates.add(rate);

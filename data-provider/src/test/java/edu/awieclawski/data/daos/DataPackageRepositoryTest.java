@@ -21,7 +21,7 @@ import edu.awieclawski.models.entities.DataPackage;
  */
 @DataJpaTest
 @ActiveProfiles("test")
-@Sql({"/test-schema.sql"})
+@Sql({ "/test-schema.sql" })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class DataPackageRepositoryTest {
 
@@ -39,6 +39,74 @@ class DataPackageRepositoryTest {
 		List<DataPackage> packages = repository.findByUrl(url);
 		Assertions.assertEquals(1, packages.size());
 		Assertions.assertEquals(url, packages.get(0).getUrl());
+	}
+
+	@Test
+	void findByUrlLikeDayTable() {
+		String date1 = "2022-05-23";
+		String date2 = "2022-06-24";
+		final String endPoint = "exchangerates/tables/b";
+		final String url1 = "https://api.nbp.pl/api/" + endPoint + "/" + date1 + "?format=json";
+		final String url2 = "https://api.nbp.pl/api/" + endPoint + "/" + date2 + "?format=json";
+		entityManager.persist(getDataPackageStub(url1, endPoint));
+		entityManager.persist(getDataPackageStub(url2, endPoint));
+		List<DataPackage> packages = repository.findByUrlLikeDayTable(endPoint, date1);
+		Assertions.assertEquals(1, packages.size());
+		Assertions.assertEquals(url1, packages.get(0).getUrl());
+		packages = repository.findByUrlLikeDayTable(endPoint, date2);
+		Assertions.assertEquals(1, packages.size());
+		Assertions.assertEquals(url2, packages.get(0).getUrl());
+	}
+
+	@Test
+	void findByUrlLikeRangeTable() {
+		String date1 = "2022-05-23";
+		String date2 = "2022-06-24";
+		final String endPoint = "exchangerates/tables/b";
+		final String url1 = "https://api.nbp.pl/api/" + endPoint + "/" + date1 + "/" + date2
+				+ "?format=json";
+		final String url2 = "https://api.nbp.pl/api/" + endPoint + "?format=json";
+		entityManager.persist(getDataPackageStub(url1, endPoint));
+		entityManager.persist(getDataPackageStub(url2, endPoint));
+		List<DataPackage> packages = repository.findByUrlLikeRangeTable(endPoint, date1, date2);
+		Assertions.assertEquals(1, packages.size());
+		Assertions.assertEquals(url1, packages.get(0).getUrl());
+		Assertions.assertNotEquals(url2, packages.get(0).getUrl());
+	}
+
+	@Test
+	void findByUrlLikeDaySingle() {
+		String date1 = "2022-05-23";
+		String date2 = "2022-06-24";
+		String code = "eur";
+		final String endPoint = "exchangerates/rates/a";
+		final String url1 = "https://api.nbp.pl/api/" + endPoint + "/" + code + "/" + date1 + "?format=json";
+		final String url2 = "https://api.nbp.pl/api/" + endPoint + "/" + code + "/" + date2 + "?format=json";
+		entityManager.persist(getDataPackageStub(url1, endPoint));
+		entityManager.persist(getDataPackageStub(url2, endPoint));
+		List<DataPackage> packages = repository.findByUrlLikeDaySingle(endPoint, code, date1);
+		Assertions.assertEquals(1, packages.size());
+		Assertions.assertEquals(url1, packages.get(0).getUrl());
+		packages = repository.findByUrlLikeDaySingle(endPoint, code, date2);
+		Assertions.assertEquals(1, packages.size());
+		Assertions.assertEquals(url2, packages.get(0).getUrl());
+	}
+
+	@Test
+	void findByUrlLikeRangeSingle() {
+		String date1 = "2022-05-23";
+		String date2 = "2022-06-24";
+		String code = "eur";
+		final String endPoint = "exchangerates/rates/a";
+		final String url1 = "https://api.nbp.pl/api/" + endPoint + "/" + code + "/" + date1 + "/" + date2
+				+ "?format=json";
+		final String url2 = "https://api.nbp.pl/api/" + endPoint + "/" + code + "?format=json";
+		entityManager.persist(getDataPackageStub(url1, endPoint));
+		entityManager.persist(getDataPackageStub(url2, endPoint));
+		List<DataPackage> packages = repository.findByUrlLikeRangeSingle(endPoint, code, date1, date2);
+		Assertions.assertEquals(1, packages.size());
+		Assertions.assertEquals(url1, packages.get(0).getUrl());
+		Assertions.assertNotEquals(url2, packages.get(0).getUrl());
 	}
 
 	private static DataPackage getDataPackageStub(String url, String endPoint) {

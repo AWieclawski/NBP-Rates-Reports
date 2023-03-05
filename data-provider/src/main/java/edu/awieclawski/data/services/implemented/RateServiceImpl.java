@@ -238,7 +238,8 @@ class RateServiceImpl implements RateService {
 			throw new RateNotFoundException("Ralated NBP type table not supported: " + nbpType);
 		}
 
-		log.info("Found {} rates. Params {}, {}, {}", ifExists, code, published, nbpType);
+		log.info("Found any result: {} for params: [currency code={}], [published={}], [nbp table type={}]", ifExists,
+				code, published, nbpType);
 		return ifExists;
 	}
 
@@ -267,8 +268,9 @@ class RateServiceImpl implements RateService {
 			throw new RateNotFoundException("Ralated NBP type table not supported: " + nbpType);
 		}
 
-		log.info("Found {} rates. Params {}, {}, {}, {}", ratesList.size(), publishedStart, publishedEnd, codes,
-				nbpType);
+		log.info(
+				"Found {} rates for params: [start date publ.={}], [end date publ.={}], [currency codes={}], [nbp table type={}]",
+				ratesList.size(), publishedStart, publishedEnd, codes, nbpType);
 		return ratesList;
 	}
 
@@ -289,7 +291,8 @@ class RateServiceImpl implements RateService {
 			throw new RateNotFoundException("Ralated NBP type table not supported: " + nbpType);
 		}
 
-		log.info("Found {} rates. Params {}, {}, {}", ratesList.size(), publishedStart, publishedEnd, nbpType);
+		log.info("Found {} rates for params: [start date publ.={}], [end date publ.={}], [nbp table type={}]",
+				ratesList.size(), publishedStart, publishedEnd, nbpType);
 
 		return ratesList;
 	}

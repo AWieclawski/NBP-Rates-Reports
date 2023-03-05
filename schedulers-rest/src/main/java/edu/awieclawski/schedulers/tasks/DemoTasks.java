@@ -212,7 +212,7 @@ public class DemoTasks {
 		if (isBuild && RUN_DEMO) {
 			log.info(" >>> START " + msg);
 			try {
-				coreDemo.run(true, true, NbpType.C);
+				coreDemo.run(true, true, NbpType.B);
 			} catch (Throwable t) {
 				log.warn("Thrown exception: {}. Error message: {} \n {}",
 						t.getClass().getSimpleName(), t.getMessage(), t);

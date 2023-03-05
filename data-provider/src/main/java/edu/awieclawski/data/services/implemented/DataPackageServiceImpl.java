@@ -81,18 +81,18 @@ class DataPackageServiceImpl implements DataPackageService {
 	}
 
 	@Override
-	public List<DataPackage> findByConverted(Boolean isConverted) {		
+	public List<DataPackage> findByConverted(Boolean isConverted) {
 		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
 	}
 
 	@Override
-	public List<DataPackage> findByEndPoint(String endPoint) {		
+	public List<DataPackage> findByEndPoint(String endPoint) {
 		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
 	}
 
 	@Override
 	public List<DataPackage> findByUrl(String url) {
-		
+
 		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
 	}
 
@@ -148,6 +148,26 @@ class DataPackageServiceImpl implements DataPackageService {
 			log.info("Transaction is to be flushed");
 			status.flush();
 		}
+	}
+
+	@Override
+	public List<DataPackage> findByUrlLikeDaySingle(String endPoint, String date, String code) {
+		return dataPackageRepository.findByUrlLikeDaySingle(endPoint, code, date);
+	}
+
+	@Override
+	public List<DataPackage> findByUrlLikeRangeSingle(String endPoint, String code, String date, String dateEnd) {
+		return dataPackageRepository.findByUrlLikeRangeSingle(endPoint, code, date, dateEnd);
+	}
+
+	@Override
+	public List<DataPackage> findByUrlLikeDayTable(String endPoint, String date) {
+		return dataPackageRepository.findByUrlLikeDayTable(endPoint, date);
+	}
+
+	@Override
+	public List<DataPackage> findByUrlLikeRangeTable(String endPoint, String date, String dateEnd) {
+		return dataPackageRepository.findByUrlLikeRangeTable(endPoint, date, dateEnd);
 	}
 
 }
