@@ -1,0 +1,33 @@
+#'webclient' module
+nbp-api:
+  host: api.nbp.pl/api/
+  ratesa: exchangerates/rates/a
+  ratesc: exchangerates/rates/c
+  atablerate: exchangerates/tables/a
+  btablerate: exchangerates/tables/b
+  ctablerate: exchangerates/tables/c
+  date-pattern: yyyy-MM-dd 
+  format: json
+  timeout: 
+    connect: 50000
+    write: 5
+    read: 5
+# 'repositories' module
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate.default_schema: nbprates
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:1212/appdata?currentSchema=nbprates
+    username: webapp
+    password: 123456
+    driverClassName: org.postgresql.Driver
+# https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto.data-initialization.using-basic-sql-scripts    
+  sql:
+    init:
+      mode: never

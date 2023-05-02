@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>nbp-rates-report</artifactId>
+		<groupId>edu.awieclawski</groupId>
+		<version>${revision}</version>
+	</parent>
+
+	<artifactId>schedulers-rest</artifactId>
+	<packaging>jar</packaging>
+	<name>NBP rates SCHEDULERS</name>
+	<description>Scheduler of Core services</description>
+
+	<dependencies>
+		<!-- must be, do not pass by other sub modules -->
+		<dependency>
+			<artifactId>commons</artifactId>
+			<groupId>edu.awieclawski</groupId>
+			<version>${revision}</version>
+		</dependency>
+		
+		<dependency>
+			<artifactId>html-factory</artifactId>
+			<groupId>edu.awieclawski</groupId>
+			<version>${revision}</version>
+		</dependency>		
+		<dependency>
+			<artifactId>logic</artifactId>
+			<groupId>edu.awieclawski</groupId>
+			<version>${revision}</version>
+		</dependency>
+		<dependency>
+			<artifactId>pdf-generator</artifactId>
+			<groupId>edu.awieclawski</groupId>
+			<version>${revision}</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Spring Boot plugins -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

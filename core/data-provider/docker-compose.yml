@@ -1,0 +1,26 @@
+# https://docs.docker.com/compose/compose-file/compose-file-v3/
+version: '3.3'
+services:
+  postgres12:
+    container_name: pg12_1212
+    image: postgres:12
+    restart: unless-stopped
+    ports:
+      - "1212:5432"
+    environment:
+      - POSTGRES_DB=appdata
+      - POSTGRES_USER=appadmin
+      - POSTGRES_PASSWORD=12345678
+    volumes: 
+      - nbpdata_pg12:/var/lib/postgresql/data
+      - ./datastore/setup.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./datastore/schema.sql:/docker-entrypoint-initdb.d/2.sql
+      - ./datastore/data.sql:/docker-entrypoint-initdb.d/3.sql
+# https://docs.docker.com/storage/volumes/
+volumes:
+   nbpdata_pg12:
+    driver: local
+    driver_opts:
+      type: tmpfs
+      device: /nbpdata/pg12
+      o: bind

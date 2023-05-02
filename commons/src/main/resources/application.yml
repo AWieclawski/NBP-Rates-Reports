@@ -1,0 +1,63 @@
+# copied to 'commons' from 'webclient' module
+nbp-api:
+  attempts: 7
+  demo: true
+  host: api.nbp.pl/api/
+  ratesa: exchangerates/rates/a
+  ratesc: exchangerates/rates/c
+  atablerate: exchangerates/tables/a
+  btablerate: exchangerates/tables/b
+  ctablerate: exchangerates/tables/c
+  date-pattern: yyyy-MM-dd 
+  format: json
+  timeout: 
+    connect: 15000
+    write: 15
+    read: 15
+
+# copied to 'commons' from 'repositories' module
+spring:
+  jpa:
+    database: POSTGRESQL
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      "[hibernate.default_schema]": nbprates
+  datasource:
+    url: jdbc:postgresql://localhost:1212/appdata?currentSchema=nbprates
+    username: webapp
+    password: 123456
+    driverClassName: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      platform: postgres
+  main:
+    web-application-type: SERVLET
+
+# copied to 'commons' from 'pdf-generator' module
+# main path of files
+root:
+  files-path: files
+
+# html file template localisation in main path
+html:
+  template: templates/container.html
+  css: templates/CSS
+
+# shedulers rest api port
+rest:
+  api:
+    port: 8888  
+
+# font file localisation in main path
+font: 
+  path: fonts/negotiate_free.ttf
+  size: 10
+  name: negotiate_free.ttf
+  footer-size: 8 
+
+# generated document pages count
+pages:
+  info: true

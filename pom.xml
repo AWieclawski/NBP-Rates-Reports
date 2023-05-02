@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>edu.awieclawski</groupId>
+
+	<artifactId>nbp-rates-report</artifactId>
+
+	<version>${revision}</version>
+
+	<packaging>pom</packaging>
+
+	<name>NBP rates PROJECT</name>
+
+	<description>NBP rates reports services</description>
+
+	<parent>
+
+		<groupId>org.springframework.boot</groupId>
+
+		<artifactId>spring-boot-starter-parent</artifactId>
+
+		<version>2.7.4</version>
+
+	</parent>
+
+	<properties>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+
+		<java.version>11</java.version>
+
+		<!-- https://maven.apache.org/maven-ci-friendly.html -->
+
+		<revision>1.0.0</revision>
+
+
+		<com.itextpdf.version>5.5.13.3</com.itextpdf.version>
+
+		<org.jsoup.version>1.15.4</org.jsoup.version>
+
+		<commons-io.version>2.11.0</commons-io.version>
+
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+
+			<groupId>org.springframework.boot</groupId>
+
+			<artifactId>spring-boot-starter-test</artifactId>
+
+		</dependency>
+
+		<dependency>
+
+			<groupId>org.projectlombok</groupId>
+
+			<artifactId>lombok</artifactId>
+
+			<scope>provided</scope>
+
+		</dependency>
+
+	</dependencies>
+
+	<modules>
+
+		<module>commons</module>
+
+		<module>models</module>
+
+		<module>webclients</module>
+
+		<module>converters</module>
+
+		<module>core</module>
+
+		<module>pdf-generator</module>
+
+		<module>schedulers-rest</module>
+
+		<module>html-factory</module>
+
+	</modules>
+
+</project>

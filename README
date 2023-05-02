@@ -1,0 +1,104 @@
+
+# NBP Rates Reports
+
+NBP exchange rate download and saving services using database built by included docker-compose.
+Also providing an API service for downloading .pdf reports generated on-fly.
+Multi-module Spring Boot application with JUnit tests and demo scheduler.
+
+## COMMONS MODULE
+Share dtos and application properties.
+
+## CONVERTERS MODULE
+Maps JSONS to dto objects.
+
+## MODELS MODULE
+Stores entities served by JPA / Hibernate framework.
+
+## PDF-GENERATOR MODULE
+Simple on-line .html / css to .pdf converter, basing on itextpdf, Jsoup. 
+Enables Bold, italic, underline formats recognition with Polish Cp1250 fonts implemented.
+
+## CORE MODULE 
+
+#### LOGIC MODULE in CORE
+Provides services for task scheduling and data processing when generating pdf reports.
+
+#### DATA-PROVIDER MODULE in CORE
+It contains repositories and configuration for PostgreSQL database support.
+Performs integration tests on a generated copy of the schema used by the database application.
+Built using Docker Compose (yml file).
+
+## SHEDULERS-REST MODULE
+This module contains an application that installs a .jar executable.
+Once launched, it can manage a demo task scheduler and a utility one.
+It also includes a REST API for downloading on-the-fly generated pdf reports.
+Logging (by Logback) in relative path configured.
+
+## WEBCLIENTS MODULE
+It provides the Webflux service called in the CORE module for downloading exchange rates from the NBP API.
+Repeatability of queries in case of error is implemented (with attempts number setup).
+
+## HTML-FACTORY
+With use FreeMarker template engine appropriate dynamic html scripts are produced.
+
+Requirements:
+JDK 11
+ - vide: https://itslinuxfoss.com/how-to-fix-the-java-command-not-found-in-linux/
+Maven
+ - vide: https://linuxhint.com/mvn-command-found/
+Docker Compose PostgreSQL
+ - vide: https://itslinuxfoss.com/fix-docker-compose-command-not-found-error/
+Linux OS (Ubuntu)
+IDE for JDK with Lombok and Spring plugins 
+ - vide: https://www.eclipse.org/downloads/packages/ 
+ 	(ex. standalone "Eclipse IDE for Enterprise Java and Web Developers" with soft link on the desktop)
+ - vide: https://www.baeldung.com/lombok-ide	
+also useful: DBeaver
+ - vide: https://dbeaver.io/files/
+
+Run:
+
+1. Get in `main` pom.xml directory and type in CLI:
+
+ `sudo ./install.sh`
+ `mvn clean install` **
+ 
+
+2. Get in in `shedulers-rest` pom.xml directory and type in CLI:
+
+ `nbp-rates-report/schedulers-rest/target/java -jar schedulers-rest-1.0.0.jar`
+
+
+Examples of use:
+
+Download test .pdf file at end-point: 
+GET http://localhost:8888/api/stream/pdf-test
+
+Prepare .pdf report file at end-point: 
+POST http://localhost:8888/api/stream/pdf-report
+
+{
+    "validToStart": "2023-01-02",
+    "validToEnd": "2023-01-11",
+    "nbpType" : "A",
+    "currencies": ["EUR","USD"]
+}
+
+*) if any problems with Docker Compose get into project directory ex. `/nbp-rates-report/core/data-provider/` 
+and type in CLI:
+
+    1. Stop the container(s) using the following command: `sudo docker-compose down`
+
+    2. Delete all containers using the following command: `sudo docker rm -f $(sudo docker ps -a -q)`
+
+    3. Delete all volumes using the following command: `sudo docker volume rm $(sudo docker volume ls -q)`
+
+    4. Restart the containers in detached mode (in the background out of terminal window), 
+    using the following command: `sudo docker-compose up -d`
+    
+**) if any problems with maven build get into `~.m2/repository/` (or similar) and delete `edu.awieclawski` 
+	then in project directory ex. `/nbp-rates-report/` and type in CLI:
+
+	`mvn -U clean install -Dmaven.test.skip=true`    
+
+
