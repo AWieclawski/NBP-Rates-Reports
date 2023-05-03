@@ -21,7 +21,7 @@ public class RatesByDateMapper {
 		int dateCounter = 0;
 
 		for (ExchangeRateDto rate : rates) {
-			dates.add(rate.getValidTo());
+			dates.add(rate.getPublished());
 
 			if (dateCounter < dates.size()) {
 				header = RatesByDateDto.builder()

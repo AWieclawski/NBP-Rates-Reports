@@ -1,4 +1,4 @@
-# copied to 'commons' from 'webclient' module
+# reg. 'webclient' module
 nbp-api:
   attempts: 7
   demo: true
@@ -15,7 +15,7 @@ nbp-api:
     write: 15
     read: 15
 
-# copied to 'commons' from 'repositories' module
+# reg. 'data-provider' module
 spring:
   jpa:
     database: POSTGRESQL
@@ -36,28 +36,47 @@ spring:
   main:
     web-application-type: SERVLET
 
-# copied to 'commons' from 'pdf-generator' module
-# main path of files
+# reg. 'pdf-generator' module
+## main path of files
 root:
   files-path: files
-
-# html file template localisation in main path
+## html file template localisation in main path
 html:
   template: templates/container.html
   css: templates/CSS
-
-# shedulers rest api port
-rest:
-  api:
-    port: 8888  
-
-# font file localisation in main path
+## font file localisation in main path
 font: 
   path: fonts/negotiate_free.ttf
   size: 10
   name: negotiate_free.ttf
   footer-size: 8 
-
-# generated document pages count
+## generated document pages count
 pages:
   info: true
+
+# shedulers rest api port
+rest:
+  api:
+    port: 8888  
+---    
+spring:
+  config:
+    activate:
+      on-profile: test    
+## 'data-provider' tests must be configured directly in module property file 
+
+# reg. 'webclient' tests
+nbp-api:
+  attempts: 7
+  host: api.nbp.pl/api/
+  ratesa: exchangerates/rates/a
+  ratesc: exchangerates/rates/c
+  atablerate: exchangerates/tables/a
+  btablerate: exchangerates/tables/b
+  ctablerate: exchangerates/tables/c
+  date-pattern: yyyy-MM-dd 
+  format: json
+  timeout: 
+    connect: 15000
+    write: 15
+    read: 15      

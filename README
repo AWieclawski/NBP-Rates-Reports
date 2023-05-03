@@ -81,7 +81,7 @@ POST http://localhost:8888/api/stream/pdf-report
     "validToStart": "2023-01-02",
     "validToEnd": "2023-01-11",
     "nbpType" : "A",
-    "currencies": ["EUR","USD"]
+    "currencies": ["EUR","USD","KRW","AFN","ETB"]
 }
 
 *) if any problems with Docker Compose get into project directory ex. `/nbp-rates-report/core/data-provider/` 

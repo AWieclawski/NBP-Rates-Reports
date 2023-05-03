@@ -1,5 +1,9 @@
-#testdata
 spring:
+  config:
+    activate:
+      on-profile: test    
+# 'data-provider' tests must be configured directly in module property file 
+#spring:
   jpa:
     database: POSTGRESQL
     show-sql: true

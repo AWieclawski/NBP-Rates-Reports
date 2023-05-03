@@ -22,7 +22,7 @@ import edu.awieclawski.models.entities.Currency;
  */
 @DataJpaTest
 @ActiveProfiles("test")
-@Sql({"/test-schema.sql"})
+@Sql( scripts = "classpath:/test-schema.sql")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CurrencyRepositoryTest {
 

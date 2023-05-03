@@ -26,7 +26,7 @@ import edu.awieclawski.models.entities.ExchangeRateTypeB;
  */
 @DataJpaTest
 @ActiveProfiles("test")
-@Sql({ "/test-schema.sql" })
+@Sql( scripts = "classpath:/test-schema.sql")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TypeARateRepositoryTest {
 

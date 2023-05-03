@@ -23,7 +23,7 @@ public abstract class PdfDefaults {
 	// CONSTs
 	public static final BaseFont BASE_PL_FONT = getBasePolishFont();
 	public static final Font HELVETICA = new Font(BASE_PL_FONT, Font.NORMAL);
-	public static final String TEST_HTML_PL = "<br><br><p>Please find example text below:</p>"
+	public static final String TEST_HTML_PL = "<p>Please find example text below:</p>"
 			+ "<p>Style changes inside each paragraph of combined list using Polish font: </p>"
 			+ "<ol>"
 			+ "<li>Nadrzędny paragraf uporządkowany numerycznie</li>"
@@ -39,6 +39,7 @@ public abstract class PdfDefaults {
 			+ "</ol>"
 			+ "<p>Brake test inside one paragraph: <br> after brake, <br> after brake again.</p>";
 	public static final String TEST_FOOTER_TXT = "edu.awieclawski.nbp-rates-report";
+	public static final String BRAKE_TAG = "<br>";
 
 	protected BaseFont getFontFromPath(String path, String fontFileName) {
 		byte[] bytes = rootResources.getResourceAsBytes(path);

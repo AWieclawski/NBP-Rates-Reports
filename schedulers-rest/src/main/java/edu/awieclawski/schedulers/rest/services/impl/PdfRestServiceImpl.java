@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-class PdfRestServiceImpl implements PdfRestService {
+class PdfRestServiceImpl extends PdfDefaults implements PdfRestService {
 	private final PdfService htmlToPdfService;
 	private final RateFacade rateFacade;
 	private final ConversionService conversionService;
@@ -72,7 +72,7 @@ class PdfRestServiceImpl implements PdfRestService {
 
 		log.info("Report demo date set as: {}", date);
 		DocumentDto dto = getDto(rates);
-		dto.concatToHtml(PdfDefaults.TEST_HTML_PL);
+		dto.concatToHtml(BRAKE_TAG.concat(TEST_HTML_PL));
 
 		return htmlToPdfService.getBinaries(dto);
 	}
@@ -81,9 +81,15 @@ class PdfRestServiceImpl implements PdfRestService {
 	public BinaryDto getNbpReport(ReportDto report) {
 		validator.validate(report);
 		List<ExchangeRateDto> rates = new ArrayList<>();
-		LocalDate validToStart = report.getValidToStart().minusDays(1);
+		int dayMinus = 1; // for 'A' and 'B' valid to is one day after published
+
+		if (report.getNbpType().equals(NbpType.C)) {
+			dayMinus = 0; // for C 'published' is 'effectiveDate'
+		}
+
+		LocalDate validToStart = report.getValidToStart().minusDays(dayMinus);
 		LocalDate validToEnd = report.getValidToEnd() != null
-				? report.getValidToEnd().minusDays(1)
+				? report.getValidToEnd().minusDays(dayMinus)
 				: report.getValidToStart();
 		List<String> codes = report.getCurrencies();
 		NbpType nbpType = report.getNbpType();
@@ -151,7 +157,7 @@ class PdfRestServiceImpl implements PdfRestService {
 		}
 
 		return DocumentDto.builder()
-				.footerText("edu.awieclawski.nbp-rates-report " + LocalDateTime.now())
+				.footerText(TEST_FOOTER_TXT.concat("-") + LocalDateTime.now())
 				.htmlContent(content)
 				.build();
 	}

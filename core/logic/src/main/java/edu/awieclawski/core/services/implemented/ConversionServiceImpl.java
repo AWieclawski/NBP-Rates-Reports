@@ -10,10 +10,10 @@ import java.util.Set;
 
 import javax.persistence.EntityExistsException;
 
-import org.springframework.util.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -50,19 +50,19 @@ class ConversionServiceImpl implements ConversionService {
 	private final NbpConnectionElements endPoints;
 
 	// static TypeReference mappers
-	public final static NbpRatesMapper<NbpSingle<NbpARate>> mapperNbpSingleNbpARate = new NbpRatesMapper<>(
+	public static final NbpRatesMapper<NbpSingle<NbpARate>> mapperNbpSingleNbpARate = new NbpRatesMapper<>(
 			new TypeReference<NbpSingle<NbpARate>>() {
 			});
-	public final static NbpRatesMapper<List<NbpATable<NbpATableRate>>> mapperListNbpATableNbpATableRate = new NbpRatesMapper<>(
+	public static final NbpRatesMapper<List<NbpATable<NbpATableRate>>> mapperListNbpATableNbpATableRate = new NbpRatesMapper<>(
 			new TypeReference<List<NbpATable<NbpATableRate>>>() {
 			});
-	public final static NbpRatesMapper<NbpSingle<NbpCRate>> mapperNbpSingleNbpCRate = new NbpRatesMapper<>(
+	public static final NbpRatesMapper<NbpSingle<NbpCRate>> mapperNbpSingleNbpCRate = new NbpRatesMapper<>(
 			new TypeReference<NbpSingle<NbpCRate>>() {
 			});
-	public final static NbpRatesMapper<List<NbpCTable<NbpCTableRate>>> mapperListNbpCTableNbpCTableRate = new NbpRatesMapper<>(
+	public static final NbpRatesMapper<List<NbpCTable<NbpCTableRate>>> mapperListNbpCTableNbpCTableRate = new NbpRatesMapper<>(
 			new TypeReference<List<NbpCTable<NbpCTableRate>>>() {
 			});
-	public final static NbpRatesMapper<List<NbpATable<NbpBTableRate>>> mapperListNbpATableNbpBTableRate = new NbpRatesMapper<>(
+	public static final NbpRatesMapper<List<NbpATable<NbpBTableRate>>> mapperListNbpATableNbpBTableRate = new NbpRatesMapper<>(
 			new TypeReference<List<NbpATable<NbpBTableRate>>>() {
 			});
 
@@ -106,14 +106,10 @@ class ConversionServiceImpl implements ConversionService {
 						if (rate != null) {
 							currencies.add(rate.getCurrency());
 							rates.add(rate);
-						} else {
-							continue;
 						}
-
 					} catch (Exception e) {
 						log.debug("ExchangeRate save error! Message: {}, cause: {}. May be ignored.", e.getMessage(),
 								e.getCause());
-						continue;
 					}
 				}
 				log.info("Saved {} rates", counter);
@@ -131,7 +127,7 @@ class ConversionServiceImpl implements ConversionService {
 		List<ExchangeRateDto> rates = new ArrayList<>();
 		foundPackages.addAll(dataService.findAllNotConverted());
 
-		if (foundPackages.size() > 0) {
+		if (!foundPackages.isEmpty()) {
 			log.info("Found {} not converted Data package/s.", foundPackages.size());
 			rates.addAll(convertToExchangeRates(foundPackages));
 		} else {
@@ -153,7 +149,7 @@ class ConversionServiceImpl implements ConversionService {
 	@Override
 	@Transactional
 	public <T extends ExchangeRateDto> List<T> getExchangeRatesList(DataPackageDto data) {
-		List<T> rates = new ArrayList<>();
+		List<T> rates;
 		String endPoint = data.getEndPoint();
 
 		if (Objects.equals(endPoints.ratesA, endPoint)) {
@@ -178,12 +174,12 @@ class ConversionServiceImpl implements ConversionService {
 	@Override
 	@Transactional
 	public List<ExchangeRateDto> convertEceptOmittedDataPackagesAndSave(List<DataPackageDto> ommittedPackages) {
-		List<DataPackageDto> packages = Collections.synchronizedList(new ArrayList<>());
+		List<DataPackageDto> packages;
 		List<ExchangeRateDto> rates = Collections.synchronizedList(new ArrayList<>());
 		packages = dataService.findAllNotConverted();
 		packages.removeAll(ommittedPackages);
 
-		if (packages.size() > 0) {
+		if (!packages.isEmpty()) {
 			log.info("Found {} not converted Data package/s.", packages.size());
 			rates = convertToExchangeRates(packages);
 		} else {
