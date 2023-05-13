@@ -20,7 +20,7 @@ import edu.awieclawski.models.entities.DataPackage;
  *
  */
 @DataJpaTest
-@ActiveProfiles("test")
+@ActiveProfiles("testdaos")
 @Sql( scripts = "classpath:/test-schema.sql")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class DataPackageRepositoryTest {

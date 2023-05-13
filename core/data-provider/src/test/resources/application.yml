@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: test    
+      on-profile: testdaos    
 # 'data-provider' tests must be configured directly in module property file 
 #spring:
   jpa:

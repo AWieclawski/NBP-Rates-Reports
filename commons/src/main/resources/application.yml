@@ -1,7 +1,7 @@
 # reg. 'webclient' module
 nbp-api:
   attempts: 7
-  demo: true
+  demo: false
   host: api.nbp.pl/api/
   ratesa: exchangerates/rates/a
   ratesc: exchangerates/rates/c

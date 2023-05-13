@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @SpringBootTest
 class HtmlUtilsTest {
 
@@ -36,6 +39,7 @@ class HtmlUtilsTest {
 	@Test
 	void readValidHtmlWithSpecialsReturnOk() {
 		String validHtml = getStringsFromAsciiRange(32, 126);
+		log.info("Just tested text content inside square brackets: [{}]",validHtml);
 		Assertions.assertDoesNotThrow(() -> htmlUtils.makeHtmlReadable(validHtml));
 	}
 

@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author awieclawski
  *
  */
-public class FooterPageEvent extends PdfPageEventHelper {// implements PdfDefaults {
+public class FooterPageEvent extends PdfPageEventHelper {
 
 	private String footerTxt = "";
 

@@ -21,8 +21,10 @@ import com.itextpdf.text.pdf.PdfPRow;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.tool.xml.ElementList;
 import com.itextpdf.tool.xml.XMLWorker;
+import com.itextpdf.tool.xml.XMLWorkerFontProvider;
 import com.itextpdf.tool.xml.css.CssFile;
 import com.itextpdf.tool.xml.css.StyleAttrCSSResolver;
+import com.itextpdf.tool.xml.html.CssAppliersImpl;
 import com.itextpdf.tool.xml.html.Tags;
 import com.itextpdf.tool.xml.parser.XMLParser;
 import com.itextpdf.tool.xml.pipeline.WritableElement;
@@ -89,7 +91,8 @@ final class XhtmlConverterServiceImpl extends PdfDefaults implements XhtmlConver
 		String output = htmlUtils.makeHtmlReadable(htmlString);
 		CSSResolver cssResolver = new StyleAttrCSSResolver();
 		cssResolver.addCss(cssFile);
-		HtmlPipelineContext htmlContext = new HtmlPipelineContext(null);
+		XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider(XMLWorkerFontProvider.DONTLOOKFORFONTS);
+	    HtmlPipelineContext htmlContext = new HtmlPipelineContext(new CssAppliersImpl(fontProvider)); 
 		htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
 		ElementHandlerPipeline pdf = new ElementHandlerPipeline(writable -> {
 			if (writable instanceof WritableElement) {

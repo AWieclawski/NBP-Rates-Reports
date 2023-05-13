@@ -41,7 +41,6 @@
 
 		<revision>1.0.0</revision>
 
-
 		<com.itextpdf.version>5.5.13.3</com.itextpdf.version>
 
 		<org.jsoup.version>1.15.4</org.jsoup.version>
