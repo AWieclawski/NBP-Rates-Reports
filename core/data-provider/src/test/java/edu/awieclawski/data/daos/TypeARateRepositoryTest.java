@@ -13,7 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
-import edu.awieclawski.data.daos.implemented.RatesTypeBRepository;
+import edu.awieclawski.commons.dtos.enums.NbpType;
+import edu.awieclawski.data.daos.implemented.RatesTypeARepository;
 import edu.awieclawski.models.entities.Currency;
 import edu.awieclawski.models.entities.ExchangeRateTypeA;
 import edu.awieclawski.models.entities.ExchangeRateTypeB;
@@ -26,20 +27,21 @@ import edu.awieclawski.models.entities.ExchangeRateTypeB;
  */
 @DataJpaTest
 @ActiveProfiles("testdaos")
-@Sql( scripts = "classpath:/test-schema.sql")
+@Sql(scripts = "classpath:/test-schema.sql")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TypeARateRepositoryTest {
 
 	@Autowired
 	private TestEntityManager entityManager;
 	@Autowired
-	private RatesTypeBRepository ratesBRepository;
+	private RatesTypeARepository ratesRepository;
 
 	private final LocalDate DATE = LocalDate.now().minusDays(1);
 	private final String CODE_EUR = "EUR";
 	private final String CODE_USD = "USD";
 	private Currency CURRENCY_EUR;
 	private Currency CURRENCY_USD;
+	private Currency CURRENCY_AFN;
 
 	@BeforeEach
 	void init() {
@@ -47,26 +49,28 @@ class TypeARateRepositoryTest {
 		entityManager.persist(CURRENCY_EUR);
 		CURRENCY_USD = getCurrencyEntity(CODE_USD);
 		entityManager.persist(CURRENCY_USD);
+		CURRENCY_AFN = getCurrencyEntity("AFN");
+		entityManager.persist(CURRENCY_AFN);
 	}
 
 	@Test
 	void findValidFromDateReturnPublishedNextBusinessDayExchangeRateTypeA() {
 		// given
 		LocalDate validFrom = DATE.minusDays(2); // must be after exchRateOne
-		ExchangeRateTypeB exchRateOne = ExchangeRateTypeB.builder()
+		ExchangeRateTypeA exchRateOne = ExchangeRateTypeA.builder()
 				.currency(CURRENCY_EUR)
 				.nbpTable("011/B/NBP/2023")
 				.rate(new BigDecimal("1.2345"))
 				.published(DATE.minusDays(3))
 				.build();
 		// published at next business day after valid from date
-		ExchangeRateTypeB exchRateTwo = ExchangeRateTypeB.builder()
+		ExchangeRateTypeA exchRateTwo = ExchangeRateTypeA.builder()
 				.currency(CURRENCY_EUR)
 				.nbpTable("013/B/NBP/2023")
 				.rate(new BigDecimal("1.3456"))
 				.published(DATE.minusDays(1))
 				.build();
-		ExchangeRateTypeB exchRateThree = ExchangeRateTypeB.builder()
+		ExchangeRateTypeA exchRateThree = ExchangeRateTypeA.builder()
 				.currency(CURRENCY_EUR)
 				.nbpTable("014/B/NBP/2023")
 				.rate(new BigDecimal("1.4567"))
@@ -76,22 +80,23 @@ class TypeARateRepositoryTest {
 		entityManager.persist(exchRateOne);
 		entityManager.persist(exchRateTwo);
 		entityManager.persist(exchRateThree);
-		entityManager.persist(getExchangeRateTypeA(CURRENCY_EUR, DATE.minusDays(9))); // disruption
+		entityManager.persist(getExchangeRateTypeB(CURRENCY_AFN, DATE.minusDays(9))); // disruption
 
 		// when
-		ExchangeRateTypeB foundA = ratesBRepository.findValidFromDate(validFrom);
+		ExchangeRateTypeA foundA = ratesRepository.findValidFromDate(validFrom);
 
 		// then
 		Assertions.assertEquals(foundA, exchRateTwo);
-		Assertions.assertTrue(ratesBRepository.findIfExistsBeforeDate(validFrom));
-		Assertions.assertTrue(ratesBRepository.findIfExistsByCodeBeforeDate(CODE_EUR, validFrom));
-		Assertions.assertFalse(ratesBRepository.findIfExistsByCodeBeforeDate(CODE_USD, validFrom));
-		Assertions.assertFalse(ratesBRepository.findIfExistsBeforeDate(DATE.minusDays(8)));
+		Assertions.assertEquals(NbpType.A, foundA.getNbpType());
+		Assertions.assertTrue(ratesRepository.findIfExistsBeforeDate(validFrom));
+		Assertions.assertTrue(ratesRepository.findIfExistsByCodeBeforeDate(CODE_EUR, validFrom));
+		Assertions.assertFalse(ratesRepository.findIfExistsByCodeBeforeDate(CODE_USD, validFrom));
+		Assertions.assertFalse(ratesRepository.findIfExistsBeforeDate(DATE.minusDays(8)));
 	}
 
-	private ExchangeRateTypeA getExchangeRateTypeA(Currency currency, LocalDate date) {
+	private ExchangeRateTypeB getExchangeRateTypeB(Currency currency, LocalDate date) {
 
-		return ExchangeRateTypeA.builder()
+		return ExchangeRateTypeB.builder()
 				.currency(currency)
 				.nbpTable("013/B/NBP/2023")
 				.rate(new BigDecimal("1.4587"))

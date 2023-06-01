@@ -40,7 +40,7 @@ public class ExchangeRateTypeC extends ExchangeRate {
 	public String toString() {
 		String currToString = currency != null ? currency.toString() + "]" : "]";
 		return "ExchangeRateTypeC [id=" + id + ", bid=" + bid + ", ask=" + ask + ", tradingDate=" + tradingDate
-		+ ", published=" + published + ", nbpTable=" + nbpTable + ", currency=" + currToString;
+				+ ", published=" + published + ", nbpTable=" + nbpTable + ", currency=" + currToString;
 	}
 
 	@Override
@@ -53,5 +53,4 @@ public class ExchangeRateTypeC extends ExchangeRate {
 	public NbpType getNbpType() {
 		return NbpType.getEnumByConst(DISC);
 	}
-
 }

@@ -72,7 +72,5 @@ public abstract class ExchangeRate extends BaseEntity {
 	}
 
 	@Transient
-	@Setter(value = AccessLevel.NONE)
-	protected NbpType nbpType;
-
+	abstract NbpType getNbpType();
 }
